@@ -31,6 +31,7 @@ app.post("/get-signup-message", async (req, res) => {
   }
 });
 app.post("/get-login-message", async (req, res) => {
+  const { username } = req.body;
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -42,7 +43,11 @@ app.post("/get-login-message", async (req, res) => {
       ],
       max_tokens: 50,
     });
-    res.json({ message: completion.choices[0].message.content.trim() });
+    const message = completion.choices[0].message.content
+      .trim()
+      .replace("[Username]", username);
+
+    res.json({ message });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Failed to get login message from GPT" });
